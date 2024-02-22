@@ -1,3 +1,4 @@
+```py
 ### Import SparkSession from pyspark.sql
 from pyspark.sql import SparkSession
 
@@ -69,6 +70,7 @@ speed1 = flights.select("origin", "dest", "tailnum", avg_speed)
 
 ### Create the same table using a SQL expression
 speed2 = flights.selectExpr("origin", "dest", "tailnum", "distance/(air_time/60) as avg_speed")
+```
 
 # Aggregation uses .groupBy()
 
