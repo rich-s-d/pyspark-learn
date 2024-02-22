@@ -118,7 +118,7 @@ flights_with_airports = flights.join(airports, on="dest", how="leftouter")
 print(flights_with_airports.show())
 ```
 
-# map() with lambda
+# map() and filter() with lambda
 
 ```py
 # Print my_list in the console
@@ -141,9 +141,149 @@ filtered_list = list(filter(lambda x: (x%10 == 0), my_list2))
 # Print the numbers divisible by 10
 print("Numbers divisible by 10 are:", filtered_list)
 # [10, 40, 60, 80]
+```
+
+# RDDs (Resilient Distributed Datasets)
+```py
+# Create an RDD from a list of words
+RDD = sc.parallelize(["Spark", "is", "a", "framework", "for", "Big Data processing"])
+
+# Print out the type of the created object
+print("The type of RDD is", type(RDD))
+# The file type of fileRDD is <class 'pyspark.rdd.RDD'>
+
+# Create a fileRDD from file_path
+fileRDD = sc.textFile(file_path)
+
+# Check the type of fileRDD
+print("The file type of fileRDD is", type(fileRDD))
+# The file type of fileRDD is <class 'pyspark.rdd.RDD'>
 
 
+# Check the number of partitions in fileRDD
+print("Number of partitions in fileRDD is", fileRDD.getNumPartitions)
+
+# Create a fileRDD_part from file_path with 5 partitions
+fileRDD_part = sc.textFile(file_path, minPartitions = 5)
+
+# Check the number of partitions in fileRDD_part
+print("Number of partitions in fileRDD_part is", fileRDD_part.getNumPartitions)
 
 
+# Create map() transformation to cube numbers
+cubedRDD = numbRDD.map(lambda x: x*x*x)
+
+# Collect the results. NOTE: collect() should only be used on small datasets.
+# Use  saveAsTextFile() or save to S3, HDFS, etc.
+numbers_all = cubedRDD.collect()
+
+# Print the numbers from numbers_all
+for numb in numbers_all:
+	print(numb)
+
+
+# Filter the fileRDD to select lines with Spark keyword
+fileRDD_filter = fileRDD.filter(lambda line: 'Spark' in line)
+
+# How many lines are there in fileRDD?
+print("The total number of lines with the keyword Spark is", fileRDD_filter.count())
+
+# Print the first four lines of fileRDD
+for line in fileRDD_filter.take(4):
+  print(line)
+```
+
+# Pair RDDs (key value RDDs)
+```py
+
+# Create PairRDD Rdd with key value pairs
+Rdd = sc.parallelize([(1,2), (3,4), (3,6), (4,5)])
+
+# Apply reduceByKey() operation on Rdd
+Rdd_Reduced = Rdd.reduceByKey(lambda x, y: x+y)
+
+# Iterate over the result and print the output
+for num in Rdd_Reduced.collect(): 
+  print("Key {} has {} Counts".format(num[0], num[1]))
+
+
+# Sort the reduced RDD with the key by descending order
+Rdd_Reduced_Sort = Rdd_Reduced.sortByKey(ascending=False)
+
+# Iterate over the result and retrieve all the elements of the RDD
+for num in Rdd_Reduced_Sort.collect():
+  print("Key {} has {} Counts".format(num[0], num[1]))
+
+
+# Count the unique keys
+total = Rdd.countByKey()
+
+# What is the type of total?
+print("The type of total is", type(total))
+
+# Iterate over the total and print the output
+for k, v in total.items(): 
+  print("key", k, "has", v, "counts")
+
+# The type of total is <class 'collections.defaultdict'>
+# key 1 has 1 counts
+# key 3 has 2 counts
+# key 4 has 1 counts
+```
+
+# Create a base RDD and transform it to count the frequency of words in a document
+```py
+# Create a baseRDD from the file path
+baseRDD = sc.textFile(file_path)
+
+# Split the lines of baseRDD into words
+splitRDD = baseRDD.flatMap(lambda x: x.split())
+
+# Count the total number of words
+print("Total number of words in splitRDD:", splitRDD.count())
+
+# Convert the words in lower case and remove stop words from the stop_words curated list
+splitRDD_no_stop = splitRDD.filter(lambda x: x.lower() not in stop_words)
+
+# Create a tuple of the word and 1 
+splitRDD_no_stop_words = splitRDD_no_stop.map(lambda w: (w, 1))
+
+# Count of the number of occurences of each word
+resultRDD = splitRDD_no_stop_words.reduceByKey(lambda x, y: x + y)
+
+# Display the first 10 words and their frequencies from the input RDD
+for word in resultRDD.take(10):
+	print(word)
+
+# Swap the keys and values from the input RDD
+resultRDD_swap = resultRDD.map(lambda x: (x[1], x[0]))
+
+# Sort the keys in descending order
+resultRDD_swap_sort = resultRDD_swap.sortByKey(ascending=False)
+
+# Show the top 10 most frequent words and their frequencies from the sorted RDD
+for word in resultRDD_swap_sort.take(10):
+	print("{},{}". format(word[1], word[0]))
+```
+
+# Spark DataFrames (higher level API than RDDs for structured data, e.g., relational database and json)
+```py
+# The spark session for DataFrames does what spark context does for RDDs.
+
+# Create an RDD from the list
+rdd = sc.parallelize(sample_list)
+
+# Create a PySpark DataFrame
+names_df = spark.createDataFrame(rdd, schema=['Name', 'Age'])
+
+# Check the type of names_df
+print("The type of names_df is", type(names_df))
+# The type of names_df is <class 'pyspark.sql.dataframe.DataFrame'>
+
+# Create an DataFrame from file_path. This could also be spark.read.parquet()
+people_df = spark.read.csv(file_path, header=True, inferSchema=True)
+
+# Check the type of people_df
+print("The type of people_df is", type(people_df))
 
 ```
