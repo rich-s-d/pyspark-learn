@@ -286,4 +286,30 @@ people_df = spark.read.csv(file_path, header=True, inferSchema=True)
 # Check the type of people_df
 print("The type of people_df is", type(people_df))
 
+# Like RDDs, DataFrames work with transformations and actions. Remember, transformations are lazy; they are performed when an action takes place. Also, transformations create a new DataFrame with your results.
+
+# Common transformations include select(), filter(), groupby(), orderby(), dropDuplicates(), withColumbedRenamed()
+# Common actions include head(), count(), columns, and describe()
+
+# Print the first 10 observations 
+people_df.show(10)
+
+# Count the number of rows 
+print("There are {} rows in the people_df DataFrame.".format(people_df.count()))
+
+# Count the number of columns and print their names
+print("There are {} columns in the people_df DataFrame and their names are {}".format(len(people_df.columns), people_df.columns))
+
+# Select name, sex and date of birth columns
+people_df_sub = people_df.select('name', 'sex', 'date of birth')
+
+# Print the first 10 observations from people_df_sub
+people_df_sub.show(10)
+
+# Remove duplicate entries from people_df_sub
+people_df_sub_nodup = people_df_sub.dropDuplicates()
+
+# Count the number of rows
+print("There were {} rows before removing duplicates, and {} rows after removing duplicates".format(people_df_sub.count(), people_df_sub_nodup.count()))
+# There were 100000 rows before removing duplicates, and 99998 rows after removing duplicates
 ```
