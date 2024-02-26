@@ -1,3 +1,5 @@
+# PySpark Tutorial from DataCamp.com
+
 ```py
 # Import SparkSession from pyspark.sql
 from pyspark.sql import SparkSession
@@ -312,4 +314,39 @@ people_df_sub_nodup = people_df_sub.dropDuplicates()
 # Count the number of rows
 print("There were {} rows before removing duplicates, and {} rows after removing duplicates".format(people_df_sub.count(), people_df_sub_nodup.count()))
 # There were 100000 rows before removing duplicates, and 99998 rows after removing duplicates
+
+# Filter people_df to select females 
+people_df_female = people_df.filter(people_df.sex == "female")
+
+# Filter people_df to select males
+people_df_male = people_df.filter(people_df.sex == "male")
+
+# Count the number of rows 
+print("There are {} rows in the people_df_female DataFrame and {} rows in the people_df_male DataFrame".format(people_df_female.count(), people_df_male.count()))
+
+
+# Filter the people table to select female sex 
+people_female_df = spark.sql('SELECT * FROM people WHERE sex=="female"')
+
+# Filter the people table DataFrame to select male sex
+people_male_df = spark.sql('SELECT * FROM people WHERE sex=="male"')
+
+# Count the number of rows in both people_df_female and people_male_df DataFrames
+print("There are {} rows in the people_female_df and {} rows in the people_male_df DataFrames".format(people_female_df.count(), people_male_df.count()))
+```
+
+# EDA visulations tools like matplotlib and seaborn cant be used directly with pyspark. Instead, pyspark_dist_explore, toPandas, and HandySpark toPandas can be used. Once in pandas, matplotlib and seaborn can be used.
+```py
+# Check the column names of names_df
+print("The column names of names_df are", names_df.columns)
+
+# Convert to Pandas DataFrame  
+df_pandas = names_df.toPandas()
+
+# Create a horizontal bar plot
+df_pandas.plot(kind='barh', x='Name', y='Age', colormap='winter_r')
+plt.show()
+
+
+
 ```
