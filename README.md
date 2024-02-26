@@ -347,6 +347,10 @@ df_pandas = names_df.toPandas()
 df_pandas.plot(kind='barh', x='Name', y='Age', colormap='winter_r')
 plt.show()
 
+# or, convert to numpy
 
+ps.DataFrame({"A": [1, 2], "B": [3, 4]}).to_numpy()
+array([[1, 3],
+       [2, 4]])
 
 ```
